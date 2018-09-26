@@ -15,4 +15,4 @@ In this assignment I will heavily focus on the application of **dplyr**, an R pa
 
 ---
 
-### [Link to Homework-02]()
+### [Link to Homework-02](https://github.com/STAT545-UBC-students/hw02-rasiimwe/blob/master/hw02.md)
