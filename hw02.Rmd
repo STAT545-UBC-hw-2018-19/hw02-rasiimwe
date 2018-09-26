@@ -1,0 +1,678 @@
+---
+title: "hw02.Rmd"
+author: "Becky"
+date: '2018-09-21'
+output: github_document
+editor_options: 
+  chunk_output_type: inline
+---
+# Data Exploration and Visualization using the **dplyr** and **ggplot2** R packages
+
+In this assignment, I will explore the Gapminder dataset. This dataset is distributed as an R package from CRAN. The exploratio of this dataset will involve the application of the dplyr package and its use in effective data wrangling. Among the data manaipulation tasks that dply handles includes: **select ()**, **mutate()**, **filter()**, **rename()**, **summarise()**, **arrange()**, and **group_by()**. These and more will be exhibited in this assignment The output from these functions will then be used as input into the various visualizations that will be done using the ggplot2 package. The application of ggplot2 will involve the use ggplots, grammar of graphics, using features such as: **geoms**, **aesthetics**, **stats**, and **faceting**.  
+
+The work herein will also heavily use the pipe operator (%>%) that tidyverse imports from the magrittr package. Piping makes code much easier to read and write as we don't need to use multi-operation commands by nesting them inside each other. Plus, its more fun using pipes!!!!
+
+To kick off this assignment, I will begin by loading all required packages to support the required data analysis.
+
+## Loading the gapminder dataset and required packages for this assignment
+
+```{r, message = FALSE} 
+
+# I use "message = FALSE"" to avoid having R package messages being thrown back as output expecially in my output files. Most of these messages are informative but not necessary for output. An example message that could be passed to markdown file is shown hereunder:
+# package ‘dplyr’ was built under R version 3.5.1
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(gapminder) # this call also loads the gapmidner dataset
+library(cowplot)
+library(ggridges)
+df <- gapminder# Assigning and renaming the dataset to a shorter and more convenient name
+
+```
+
+## Data Inspection - Part 1: Overview of Dataset 
+### Applying the pipe operator
+This section involves the use of the pipe operator in accomplishing the data inspection task. 
+
+##### 1. What type of object is the gapminder dataset?
+```{r}
+
+df %>% class # in base R, this would be "class(df)"
+
+```
+In R, datasets are regarded as objects. To work with most objects, it is ideal to know the class (type of object) to be able to work with it effectively and to avoid programming hitches. For example, the way we work with dataframes is different from the way matrixes are handled. From the output of the above snipped, the gapminder dataset is of type tbl_df, inherited from both the tbl and data.frame data types. Data frames such as the gapminder dataset that are converted into tbl objects make it much easier to work with large datasets.
+
+##### 2. Viewing the top (n) rows of the dataset
+```{r}
+
+df %>% head(10) # I have specified the number of rows to view (10 rows). The default is 6. In base R this would be "head(df, n=10)"
+
+```
+
+##### 3. Viewing bottom (n) rows of dataframe
+```{r}
+
+df %>% tail(5)
+
+```
+
+##### 4. Extracting the summarized view of the dataset
+```{r}
+
+df %>% summary
+
+```
+The summary function is used to produce summary statistics from the dataset. Some of these results can be obtained using alternative methods. For example, if we want to extract the minimum and maximum populations, we can apply the range(), we can also get the maximum gdpPercap using df$gdpPercap %>% max.
+When we run the below code, we see that we get the same results that are provided in the continent variable of the summary table.
+`df$continent %>% summary
+summary(df$continent=="Africa")` 
+
+These and more examples that validate the results from the summary function above, will be shown below.
+ 
+
+##### 5. Viewing the structure of the dataset
+```{r}
+
+df %>% str
+
+```
+From output of the above code snippet, we can see and further confirm that the dataset is a tbl_df with 1704 observations (countries) and 6 variables as described below:
+1. **country** is a **factor** with **142 levels** (we could say that there are 142 unique countries)
+2. **continent** is **factor** with **5 levels** (5 unique continents)
+3. **year** is an **integer** ranging from 1952 to 2007 as seen by (df$year %>% max)
+4. **lifeExp** is as **numeric** variable denoting life expectancy 
+5. **pop** is an **integer** variable denoting population
+6. **gdpPercap** is a **numeric** variable denoting GDP per capita
+
+##### 6. Checking the dimensions of the dataframe (nrows x ncols)
+Apart from using the str() function to view the dimensions of a dataset, we can also use the below:
+```{r}
+
+df %>% dim 
+
+```
+The dataframe has 1704 rows and 6 columns (1704 x 6)
+
+##### 7. Alternative call for number of rows
+```{r}
+
+df %>% nrow 
+
+```
+
+##### 8. Alternative call for number of columns
+```{r}
+
+df %>% ncol
+
+```
+
+##### 9. Extracting column names
+```{r}
+
+df %>% names
+
+```
+
+#### Quality Control (QC)
+```{r}
+
+sum(is.na(df)) 
+df %>% is.na %>% sum
+
+```
+The output of the above code snippet is 0. This implies that we do not have any missing data in the dataset. In case we had some rows with missing data, we would then apply `df <- na.omit(df)` to remove NAs that would hinder data analysis.
+
+---
+
+## Data Inspection - Part 2: Variable Specific Exploration 
+
+### Exploring a categorical variable from the data set (continent) 
+##### 1. Which continents exist in the gapminder dataset?
+```{r}
+
+df %>% distinct(continent) %>% arrange(continent)  # we have 5 continents
+
+# Alternatively:
+df$continent %>%unique
+```
+We have 5 distinct continents in the gapminder dataset: Asia, Europe, Africa, Americas and Oceania
+
+##### 2. How many continents are there?
+```{r}
+df$continent %>% nlevels
+```
+
+3. How many countries are in each continent?
+```{r}
+df %>% 
+  group_by(continent) %>%
+  summarise(count = n())
+# We can alternatively use:
+df$continent %>% summary
+
+```
+To see how many countries belong to Europe and how many do not, we can use the following
+```{r}
+
+summary(df$continent=="Africa") 
+
+```
+
+### Exploring a quantitative variable from the dataset (population)
+
+In my first assignmeent I explored the gdpPercap variable and I saw that an increase in gdp per capita increased life expectancy. Here I will also probe into the pop (population) variable to see whether it has a bearing on gdp per capita. 
+
+##### 1. What is the highest population in the entire dataset?
+```{r}
+
+df$population %>% max
+
+```
+##### 2. What is the lowest population in the entire dataset?
+```{r}
+
+df$population %>% min
+
+```
+##### 3. To achieve the above output, we can alterantively use the range() function to extract the lowest and highest population values. To do this, I will use the following:
+
+```{r}
+
+range(df$population)
+
+```
+As we can sees, 60011 is the lowest population reported in the entire dataset and 1318683096 is the highest. However, I woould like to know more!
+
+##### 3. Which country reports the highest population?
+```{r}
+
+high <- df$population %>% max
+df[df$pop == high,] # I would like to extract the entire tuple in which the highest population was recorded
+
+```
+China, in Asia has the highest recorded population and this was in 2007.
+
+##### 3. Which country reports the lowest population?
+```{r}
+
+low <- df$population %>% min
+df[df$population == low,]
+
+```
+Sao Tome and Principe, in Africa has the lowest population reported for the year 1952.
+
+---
+
+## The application of dplyr for data wrangling and manipulation
+
+At this point, I would like to introduce dplyr's awesome functions. I will be exhibiting the usage of the following functions to answer questions I have on the gapminder dataset:
+1. **rename()**
+2. **filter()**
+3. **select ()**
+4. **arrange()**
+5. **mutate()**
+6. **summarise()** and 
+7. **group_by()**
+
+### The rename function: rename()
+To start with, and to ease my work, I will rename some variables that have been giving me a bit of trouble (those with long names :smile: ). To do this, I will use the rename() function that is mainly used to rename variables in a dataset. 
+```{r}
+
+df <- df %>%
+      rename(lex = lifeExp,
+         gdppc = gdpPercap,
+         cont = continent)
+# to see the new names, I will run:
+names(df)
+```
+Some of my variable names have changed: lifeExp has been renamed to lex, gdpPercap has been renamed to gdppc and continent has been renamed to cont. The rest of the assignment will refer to these new names.
+
+### The filter function: filter()
+This function is used to select a desired set of rows, better said - to subset data row-wise. The filter() takes logical expressions and returns the rows for which all are TRUE. A few examples of the usage of filter have been given above and a few more will be given below.
+
+Example 1. Filtering the dataset based on single and multiple criteria
+```{r}
+
+df %>% filter(cont=="Asia") # extract statistics from rows where the continent is Asia 
+
+df %>% filter(year==1977)# extract statistics from rows where the year is 1977
+
+```
+
+Example 2. Filtering a dataset based on multiple criteria (to achieve this we can implement logical operators such as: **&**(and), **<**(less than), **<=**(less than or equal to), **>**(greater than), **>=**(greater than or equal to), **==**(equal to), **!=**(not equal to), **|**(or)) e.t.c
+```{r}
+
+filter(df, cont=="Oceania" & year==2002) # Show only stats for Oceania in 2002
+
+filter(df, gdppc<400 & lex>40 & year==2007 ) # filter for only stats for countries with gdp per capita less than 400 and life expecancy greater than 40 where the year is 2007  
+
+filter(df, country=="Angola", year >=1995) # filtering for all rows where the country is Angola and the year less than 1995
+
+filter(df, cont!="Americas", year <= 1995 | year ==2007) # filtering for rows where the continent is not Americas and the year is less than or equal to 1995 or  year is 2007
+
+df %>% filter(country=="China" | country=="Sao Tome and Principe")#filter for rows where the country is either Chaina or Sao Tome and Principe
+
+#Alternative for the above:
+#filter(df, country %in% c("China", "Sao Tome and Principe")) 
+
+```
+
+### The select function: select()
+
+The filter() function is applied when we want to return only certain rows that match a given condition. However, the select() function allows us to subset the data and restrict our selection to a number of columns. Below are some examples on how to use the select function.
+
+```{r}
+# Example 1:
+df %>% 
+  select(country, year, pop) %>%
+  head(8) # here, I am using the select() function to subset the data by selecting only the country, year and population. I have also piped my output through head to extrac the top 8 rows.
+
+# Example 2:
+df %>%
+  filter(country == "Tanzania") %>%
+  select(year, pop) # combining filter and select functions to select the year and population for the country Tanzania.
+
+```
+
+### The arrange function: arrange()
+The arrange function sorts a dataset by columns of interest. This can be done either in ascending or descending order, however, by default, the order is ascending. 
+
+```{r}
+# Example 1:
+df %>% arrange(pop)
+
+# Example 2:
+df %>% 
+  select(pop, lex) %>% 
+  arrange
+
+# Example 3:
+df %>% 
+  select(pop, lex) %>% 
+  arrange(desc(pop))
+
+
+```
+
+### The mutate function: mutate()
+The mutate() function helps us to add new variables to a dataset. 
+Let me add a new variable called gdp2, here I will multiply the initial gdp per capita by 100, just to test the functionality of mutate!
+
+```{r}
+mutated <- mutate(df, gdp2=gdppc*100) # this creates a new variable called gdp
+mutated %>% head
+```
+Here we can see that a new variable gdp2 has been added to the mutated dataset computed from the gdp per capita variable
+
+### The summarise function: summarize()
+The summarize() function summarizes multiple values to a single value. 
+```{r}
+# Example 1:
+df %>% 
+  summarize(mean(pop))
+# Example 2:
+summarize(df, n())
+# Example 3:
+summarize(df, n_distinct(country))
+# Example 4:
+df %>% 
+  summarize(numrows = n(), numcountries = n_distinct(country), meanlex = mean(lex), meanpop = mean(pop), meangdppc = mean(gdppc))
+```
+From the above code snippets, we see the valuable utility of the summarise function in providing summary statistics of a dataset. In here, I also called for computed variables like the mean life expectancy and mean population.
+
+### The group_by function: group_by() 
+The group_by function converts a dataset into a grouped dataset to support grouped operations. This can also work hand in hand with the summarize() function.
+
+```{r}
+
+gp <- df %>% 
+  group_by(cont)
+
+gp %>% 
+  class
+
+```
+We can now see, the grouped extact from dataframe "df" is now also being defined as a "grouped_df" 
+
+Using group_by() with summarise()
+```{r}
+
+# Example 1:
+df %>% 
+  group_by(cont) %>%
+  summarise(mean(pop))
+# Example 2:
+df %>% 
+  group_by(year) %>%  
+  summarise(mean(lex), mean(pop), mean(gdppc))
+# Example 3:
+df %>% 
+  group_by(cont,year) %>%  
+  summarise(mean(lex), mean(pop), mean(gdppc))
+# Example 4:
+df %>% filter(year==1992)%>% 
+  group_by(cont) %>% 
+  summarize(sum(gdppc))
+# Example 5:
+df %>% 
+  group_by(cont) %>%
+  summarise(num_countries = n())
+
+```
+
+We can see that the output from these functions aligns with the summary() function that we saw in previous sections. For example, we can see the number of coutries in each continent. We can also compute the mean values of the life expectancy, population and gdp per capita variables and present them in a summarised way.
+
+Combining filter(), select(), mutate(), group_by() and summarize()
+```{r}
+# Example 1:
+df %>%
+  filter(country == "Bulgaria") %>%
+  select(-cont, -lex) %>%
+  mutate(gdp2 = pop * 100) %>%
+  group_by(country) %>%
+  summarize(meangdp = mean(gdp2))
+
+```
+We can also combine all functions to help us wrangle and manipulate the data more!
+
+Given the valuable knowledge from the above functions, I am interested creating a dataframe that contains computed values from the initial variables that we have in the gapminder dataset. This dataset will also be used in subsequet sections.
+
+```{r}
+
+newdf<- df %>%
+  group_by(cont,year) %>%
+  summarise(mean(lex), mean(pop), mean(gdppc))
+
+newdf <- newdf %>%
+      rename(avg_lex = "mean(lex)",
+          avg_pop ="mean(pop)",
+          avg_gdppc = "mean(gdppc)")
+
+
+
+```
+Here, I have created a new dataframe called "newdf", that has continent summary statistics based on year, average life expectacy, average population and average or mean gdp per capita.
+
+## The application of ggplot2 for the visualization of the gapminder dataset
+Putting it all together using visualisations based on the ggplot2 package; this section explores the use of ggplot's features that enalble analysts build awesome plots layer by layer. Here, I will use ggplots, grammar of graphics: **geoms**, **aesthetics**, **stats**, and **faceting**. 
+
+To provide a brief description:
+1. A geom specifies how the data are represented on the plot (points, lines, bars,
+etc.) 
+2. Aesthetics map the variables in the dataset to the axes on the plot or to plotting size, shape, color
+3. A stat is a statistical transformation or summary of the data applied prior to plotting and finally 4. Facets allow the data to be divided into chunks on the basis of other categorical or continuous variables and the same plot drawn for each chunk.
+
+This section also presents different kinds of plots enabled by ggplot2 as a visual aid to provide a  further review of some of the analyses done in preceding secitons.
+* To note is that the gapminder dataset comes with country colors and country codes as specified in the [gapminder documentation](https://cran.r-project.org/web/packages/gapminder/gapminder.pdf). I will be applying the same colors herein.
+
+### Working with histograms
+
+```{r}
+df %>% 
+  filter(year == 2007) %>% 
+  ggplot(aes(lex)) +
+  geom_histogram(binwidth = 1, fill = "orange", colour = "black", alpha = 0.5) +
+  scale_y_continuous(breaks = scales::pretty_breaks()) +
+  theme_gray() +
+  labs(x="Life Expectancy")
+  theme(panel.grid.major.x = element_blank())
+```
+
+In the example below, I introduce the cowplot library that helps us view plots side by side
+```{r}
+library(cowplot)
+
+p0 <- df %>% filter(cont=="Asia") %>% 
+  ggplot(aes(gdppc))+ geom_histogram(bins=40)+theme_light()+ ggtitle("GDP per capita of Asia for all years")+theme(plot.title = element_text(hjust = 0.5))+ labs(x = "GDP Per Capita - Asia")
+
+p01 <- df %>% filter(cont=="Africa") %>% 
+  ggplot(aes(gdppc))+ geom_histogram(bins=40)+theme_light() + ggtitle("GDP per capita of Africa for all year")+theme(plot.title = element_text(hjust = 0.5))+ labs(x = "GDP Per Capita - Africa")
+
+plot_grid(p0, p01, labels = "AUTO")
+
+```
+
+### Working with geom_bar
+```{r}
+df %>% 
+  filter(year==2007) %>% 
+  ggplot(aes(cont))+ 
+  geom_bar(fill = "gray80", color="black")
+```
+
+From the above plot, we can see that Africa has the largest number of countries while Oceania has the fewest
+
+### Working with geom_col
+```{r}
+d2<- df %>%
+  filter(year == 2007) %>%
+  group_by(cont) %>%
+  summarise(mean = mean(lex))
+
+d2 %>% 
+  ggplot(aes(cont, mean, fill = cont)) + 
+  geom_col(alpha = 0.8) +
+  scale_y_continuous(labels = scales::dollar, expand = c(0, 0)) +
+  theme_light()+
+  labs(x="Continent", y="Mean life expectancy")
+  
+```
+
+
+### Density plots 
+Comparing gdp per capita and life expectancy of all continets in 2002 
+```{r}
+gdp_2002<- df %>% 
+filter(year == 2002) 
+gdp_2002 %>% ggplot(aes(x = gdppc, fill = cont)) + facet_wrap(~year) + geom_density(alpha = 0.5) + ggtitle("Density plots of gdpPercap in 2002 for each continent and across all countries") + theme(legend.title = element_text(color = "gray", size = 14, face = "bold"), legend.background = element_rect(fill = "gray80",size = 0.2, linetype = "dashed")) + labs(x="gdpPercap", y="Density")+scale_fill_manual( values = c("orange","blue","maroon","darkgreen","midnightblue"))
+
+lex_2002<- df %>% 
+filter(year == 2002) 
+lex_2002 %>% ggplot(aes(x = lex, fill = cont)) + facet_wrap(~year) + geom_density(alpha = 0.5) + ggtitle("Density plots of life expectancy in 2002 for each continent and across all countries") + theme(legend.title = element_text(color = "gray", size = 14, face = "bold"), legend.background = element_rect(fill = "gray80",size = 0.2, linetype = "dashed")) + labs(x="gdpPercap", y="Density")+scale_fill_manual( values = c("orange","blue","maroon","darkgreen","midnightblue"))
+
+
+```
+
+### Combining kernel density plots with histograms
+```{r}
+df %>% 
+  ggplot(aes(gdppc))+ 
+  geom_histogram(aes(y=..density..), fill = "gray80", color="black")+
+  geom_density()+
+  labs(x="GDP Per Capita")
+
+df %>% 
+  ggplot(aes(lex))+ 
+  geom_histogram(aes(y=..density..), fill = "gray80", color="black")+
+  geom_density()+
+  geom_density()+
+  labs(x="Life Expectancy")
+```
+
+### Working with ggridges
+
+```{r}
+
+df %>% 
+  ggplot(aes(lex, fct_rev(cont), fill = cont)) +
+  geom_density_ridges(colour = "gray50", size = 0.6, alpha = 0.5) +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_discrete(expand = c(0,0)) +
+  theme_light() 
+```
+
+### Working with line plots
+
+To view the progression of the gdp per capita and life expectancy of countries of interest over the years
+```{r}
+#install.packages("cowplot")
+
+countries <- c("Croatia", "China", "Brazil", "Bolivia", "Canada","Uganda","United States")
+data <- droplevels(subset(df, country %in% countries))
+data$country <- with(data, reorder(country, gdppc, max))
+ggplot(data, aes(x = year, y = gdppc)) +
+  geom_line(aes(color = country)) +
+  scale_colour_manual(values = country_colors) +
+  guides(color = guide_legend(reverse = TRUE))
+
+data$country <- with(data, reorder(country, lex, max))
+ggplot(data, aes(x = year, y = lex)) +
+  geom_line(aes(color = country)) +
+  scale_colour_manual(values = country_colors) +
+  guides(color = guide_legend(reverse = TRUE))
+
+p1 <- ggplot(data, aes(x = year, y = gdppc)) +
+  geom_line(aes(color = country)) +
+  scale_colour_manual(values = country_colors) +
+  guides(color = guide_legend(reverse = TRUE))
+
+p2 <- ggplot(data, aes(x = year, y = lex)) +
+  geom_line(aes(color = country)) +
+  scale_colour_manual(values = country_colors) +
+  guides(color = guide_legend(reverse = TRUE))
+
+#par(mfrow=c(2,1))
+plot_grid(p1, p2)
+```
+
+From the above plots, we can see that the United states has the highest gdp per capita across all years, while Uganda has the lowest. We also see that before 1980 Uganda and China had close to similar gdp per capitas, however after 1980, China rose above Uganda with a steady improvenemt in gdp per capita. Of interest in the life expectancy plot is China again that had a big drop in life expectancy after 1960 but rises above Brazil in ~ 1968. Here we see an almost direct correlation between gdp per capita and life expectancy.
+
+### Working with Box Plots
+```{r}
+df %>% 
+  ggplot(aes(cont, gdppc)) +
+  geom_boxplot(fill = "orange2") +
+  ggtitle("GDP per capita Across all Continents (1952-2007)")+
+  labs(x="Continent", y="GDP per capita")
+```
+
+From the above plot that compares the GDP per capita of all continents, we can see that Oceania has the highest GPD per capita followed by Europe. Africa has the lowest GPD per capita. We also see quite a number of outliers in Asia. A few plots below will explain this occurance.
+
+### Working with Scatter Plots
+```{r}
+df %>% 
+  ggplot(aes(gdppc, pop))+
+  scale_x_log10()+
+  geom_point(aes(color=cont), alpha=0.2)+
+  labs(x="GDP per capita", y="population")
+```
+
+
+### More examples of the usage of geom_line, geom_jitter and geom_point
+In the next code snippet, I introduce my new data frame that I created "newdf"
+```{r}
+newdf %>% 
+  ggplot(aes(cont, avg_lex))+
+  geom_line()+
+  geom_jitter()+
+  geom_point()
+
+```
+
+### Ordering variables in a box plot
+```{r}
+ newdf %>% 
+  ggplot(aes(reorder(cont, avg_gdppc), avg_gdppc))+
+  geom_boxplot(fill = "orange2") + 
+  geom_jitter(alpha=1/2)+
+  scale_y_log10()+
+  labs(y="Mean GDP Per Capita", x="Ordered Continent")
+
+```
+
+### Including outliers in a box plot
+```{r}
+ df %>% 
+  ggplot(aes(reorder(cont, gdppc), gdppc)) +
+  geom_boxplot(outlier.colour="firebrick",fill = "orange1") + 
+  geom_jitter(alpha=0.2)+
+  scale_y_log10()+
+  labs(y="Mean GDP Per Capita", x="Ordered Continent")
+
+
+```
+
+### Working with Violin Plots
+```{r}
+df %>% 
+  filter(year==1997) %>% 
+  ggplot(aes(cont,lex, fill = cont)) +
+  geom_violin(colour = "gray80", alpha = 0.8) +
+  theme_light() +
+  geom_point()+
+  labs(x="Continent", y="Life Expectancy")
+ 
+```
+
+### Including more data in a violin plot
+```{r}
+df %>% 
+ ggplot(aes(reorder(cont, pop), pop)) + 
+  scale_y_log10()+
+  geom_violin(fill="gray80", color="black")+
+  geom_jitter(alpha=0.2) #show as much of the data as you can
+
+```
+
+### Working with Facet Wraps combined with other ggplopt2 features
+```{r}
+
+df %>% 
+  ggplot(aes(cont, gdppc, fill = cont)) + 
+  geom_violin() +
+  facet_wrap(~ year) +
+  scale_fill_manual(values = c("blue2", "steelblue3","firebrick","cyan", "darkblue")) +
+  scale_y_log10() +
+  labs(y="GDP per capita", x="Continent") +
+  theme_bw() +
+  geom_jitter(alpha=0.2)
+ 
+```
+
+### Working with geom_segment
+```{r}
+df %>% 
+  filter(cont=="Americas") %>% 
+  ggplot(aes(gdppc, country)) +
+  geom_segment(aes(x = 0, xend = gdppc, y = country, yend = country), colour = "black") + 
+  geom_point(colour = "midnightblue", size = 3, alpha = 0.5) +
+  theme_light() +
+  labs(y="country", x="GDP per capita")
+ 
+
+```
+
+### Working with grouped bar charts
+```{r}
+d4 <- df %>% 
+  filter(year > 1990) %>%
+  group_by(year, cont) %>%
+  summarise(population = sum(as.double(pop)))
+
+d4 %>% 
+  ggplot(aes(year, population, group = cont, fill = cont)) + 
+  geom_col(position = "dodge", colour = "black", size = 0.3, alpha = 0.5) +
+  theme_light() 
+  
+```
+
+
+### Working with stacked bar charts, stacked to 100%
+
+```{r}
+d5 <- df %>% 
+  filter(year > 1952) %>%
+  group_by(year, cont) %>%
+  summarise(population = sum(as.double(pop)))
+
+d5 %>% 
+  ggplot(aes(year,population, fill = cont)) + 
+  geom_col(position = "fill", colour = "black", size = 0.2, alpha = 0.5) +
+  theme_light() 
+ 
+```
+
+
+
+
