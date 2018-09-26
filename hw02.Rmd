@@ -40,28 +40,33 @@ This section involves the use of the pipe operator in accomplishing the data ins
 df %>% class # in base R, this would be "class(df)"
 
 ```
+
 In R, datasets are regarded as objects. To work with most objects, it is ideal to know the class (type of object) to be able to work with it effectively and to avoid programming hitches. For example, the way we work with dataframes is different from the way matrixes are handled. From the output of the above snipped, the gapminder dataset is of type tbl_df, inherited from both the tbl and data.frame data types. Data frames such as the gapminder dataset that are converted into tbl objects make it much easier to work with large datasets.
 
 ##### 2. Viewing the top (n) rows of the dataset
 ```{r}
 
-df %>% head(10) # I have specified the number of rows to view (10 rows). The default is 6. In base R this would be "head(df, n=10)"
+df %>% head(10) %>% 
+  knitr::kable()# I have specified the number of rows to view (10 rows). The default is 6. In base R this would be "head(df, n=10)"
 
 ```
 
 ##### 3. Viewing bottom (n) rows of dataframe
 ```{r}
 
-df %>% tail(5)
+df %>% tail(5)%>% 
+  knitr::kable()
 
 ```
 
 ##### 4. Extracting the summarized view of the dataset
 ```{r}
 
-df %>% summary
+df %>% summary%>% 
+  knitr::kable()
 
 ```
+
 The summary function is used to produce summary statistics from the dataset. Some of these results can be obtained using alternative methods. For example, if we want to extract the minimum and maximum populations, we can apply the range(), we can also get the maximum gdpPercap using df$gdpPercap %>% max.
 When we run the below code, we see that we get the same results that are provided in the continent variable of the summary table.
 `df$continent %>% summary
@@ -73,9 +78,11 @@ These and more examples that validate the results from the summary function abov
 ##### 5. Viewing the structure of the dataset
 ```{r}
 
-df %>% str
+df %>% str%>% 
+  knitr::kable()
 
 ```
+
 From output of the above code snippet, we can see and further confirm that the dataset is a tbl_df with 1704 observations (countries) and 6 variables as described below:
 1. **country** is a **factor** with **142 levels** (we could say that there are 142 unique countries)
 2. **continent** is **factor** with **5 levels** (5 unique continents)
@@ -88,7 +95,8 @@ From output of the above code snippet, we can see and further confirm that the d
 Apart from using the str() function to view the dimensions of a dataset, we can also use the below:
 ```{r}
 
-df %>% dim 
+df %>% dim
+   
 
 ```
 The dataframe has 1704 rows and 6 columns (1704 x 6)
@@ -121,6 +129,7 @@ sum(is.na(df))
 df %>% is.na %>% sum
 
 ```
+
 The output of the above code snippet is 0. This implies that we do not have any missing data in the dataset. In case we had some rows with missing data, we would then apply `df <- na.omit(df)` to remove NAs that would hinder data analysis.
 
 ---
@@ -131,11 +140,14 @@ The output of the above code snippet is 0. This implies that we do not have any 
 ##### 1. Which continents exist in the gapminder dataset?
 ```{r}
 
-df %>% distinct(continent) %>% arrange(continent)  # we have 5 continents
+df %>% distinct(continent) %>% arrange(continent)%>% 
+  knitr::kable()  # we have 5 continents
 
 # Alternatively:
-df$continent %>%unique
+df$continent %>%unique%>% 
+  knitr::kable()
 ```
+
 We have 5 distinct continents in the gapminder dataset: Asia, Europe, Africa, Americas and Oceania
 
 ##### 2. How many continents are there?
@@ -147,11 +159,14 @@ df$continent %>% nlevels
 ```{r}
 df %>% 
   group_by(continent) %>%
-  summarise(count = n())
+  summarise(count = n())%>% 
+  knitr::kable()
 # We can alternatively use:
-df$continent %>% summary
+df$continent %>% summary%>% 
+  knitr::kable()
 
 ```
+
 To see how many countries belong to Europe and how many do not, we can use the following
 ```{r}
 
@@ -175,6 +190,7 @@ df$population %>% max
 df$population %>% min
 
 ```
+
 ##### 3. To achieve the above output, we can alterantively use the range() function to extract the lowest and highest population values. To do this, I will use the following:
 
 ```{r}
@@ -226,17 +242,20 @@ df <- df %>%
 # to see the new names, I will run:
 names(df)
 ```
+
 Some of my variable names have changed: lifeExp has been renamed to lex, gdpPercap has been renamed to gdppc and continent has been renamed to cont. The rest of the assignment will refer to these new names.
 
 ### The filter function: filter()
 This function is used to select a desired set of rows, better said - to subset data row-wise. The filter() takes logical expressions and returns the rows for which all are TRUE. A few examples of the usage of filter have been given above and a few more will be given below.
 
 Example 1. Filtering the dataset based on single and multiple criteria
-```{r}
+```{r, message=FALSE}
 
-df %>% filter(cont=="Asia") # extract statistics from rows where the continent is Asia 
+df %>% filter(cont=="Asia") %>% 
+  knitr::kable() # extract statistics from rows where the continent is Asia 
 
-df %>% filter(year==1977)# extract statistics from rows where the year is 1977
+df %>% filter(year==1977)%>% 
+  knitr::kable()# extract statistics from rows where the year is 1977
 
 ```
 
@@ -266,12 +285,14 @@ The filter() function is applied when we want to return only certain rows that m
 # Example 1:
 df %>% 
   select(country, year, pop) %>%
-  head(8) # here, I am using the select() function to subset the data by selecting only the country, year and population. I have also piped my output through head to extrac the top 8 rows.
+  head(8)%>% 
+  knitr::kable() # here, I am using the select() function to subset the data by selecting only the country, year and population. I have also piped my output through head to extrac the top 8 rows.
 
 # Example 2:
 df %>%
   filter(country == "Tanzania") %>%
-  select(year, pop) # combining filter and select functions to select the year and population for the country Tanzania.
+  select(year, pop)%>% 
+  knitr::kable() # combining filter and select functions to select the year and population for the country Tanzania.
 
 ```
 
@@ -280,17 +301,20 @@ The arrange function sorts a dataset by columns of interest. This can be done ei
 
 ```{r}
 # Example 1:
-df %>% arrange(pop)
+df %>% arrange(pop)%>% 
+  knitr::kable()
 
 # Example 2:
 df %>% 
   select(pop, lex) %>% 
-  arrange
+  arrange %>% 
+  knitr::kable()
 
 # Example 3:
 df %>% 
   select(pop, lex) %>% 
-  arrange(desc(pop))
+  arrange(desc(pop))%>% 
+  knitr::kable()
 
 
 ```
@@ -301,7 +325,8 @@ Let me add a new variable called gdp2, here I will multiply the initial gdp per 
 
 ```{r}
 mutated <- mutate(df, gdp2=gdppc*100) # this creates a new variable called gdp
-mutated %>% head
+mutated %>% head %>% 
+  knitr::kable()
 ```
 Here we can see that a new variable gdp2 has been added to the mutated dataset computed from the gdp per capita variable
 
@@ -310,15 +335,20 @@ The summarize() function summarizes multiple values to a single value.
 ```{r}
 # Example 1:
 df %>% 
-  summarize(mean(pop))
+  summarize(mean(pop))%>% 
+  knitr::kable()
 # Example 2:
-summarize(df, n())
+summarize(df, n())%>% 
+  knitr::kable()
 # Example 3:
-summarize(df, n_distinct(country))
+summarize(df, n_distinct(country))%>% 
+  knitr::kable()
 # Example 4:
 df %>% 
-  summarize(numrows = n(), numcountries = n_distinct(country), meanlex = mean(lex), meanpop = mean(pop), meangdppc = mean(gdppc))
+  summarize(numrows = n(), numcountries = n_distinct(country), meanlex = mean(lex), meanpop = mean(pop), meangdppc = mean(gdppc))%>% 
+  knitr::kable()
 ```
+
 From the above code snippets, we see the valuable utility of the summarise function in providing summary statistics of a dataset. In here, I also called for computed variables like the mean life expectancy and mean population.
 
 ### The group_by function: group_by() 
@@ -341,23 +371,28 @@ Using group_by() with summarise()
 # Example 1:
 df %>% 
   group_by(cont) %>%
-  summarise(mean(pop))
+  summarise(mean(pop))%>% 
+  knitr::kable()
 # Example 2:
 df %>% 
   group_by(year) %>%  
-  summarise(mean(lex), mean(pop), mean(gdppc))
+  summarise(mean(lex), mean(pop), mean(gdppc))%>% 
+  knitr::kable()
 # Example 3:
 df %>% 
   group_by(cont,year) %>%  
-  summarise(mean(lex), mean(pop), mean(gdppc))
+  summarise(mean(lex), mean(pop), mean(gdppc))%>% 
+  knitr::kable()
 # Example 4:
 df %>% filter(year==1992)%>% 
   group_by(cont) %>% 
-  summarize(sum(gdppc))
+  summarize(sum(gdppc))%>% 
+  knitr::kable()
 # Example 5:
 df %>% 
   group_by(cont) %>%
-  summarise(num_countries = n())
+  summarise(num_countries = n())%>% 
+  knitr::kable()
 
 ```
 
@@ -371,7 +406,8 @@ df %>%
   select(-cont, -lex) %>%
   mutate(gdp2 = pop * 100) %>%
   group_by(country) %>%
-  summarize(meangdp = mean(gdp2))
+  summarize(meangdp = mean(gdp2)) %>% 
+  knitr::kable()
 
 ```
 We can also combine all functions to help us wrangle and manipulate the data more!
@@ -384,12 +420,18 @@ newdf<- df %>%
   group_by(cont,year) %>%
   summarise(mean(lex), mean(pop), mean(gdppc))
 
+newdf %>% 
+  head %>% 
+  knitr::kable()
+
 newdf <- newdf %>%
       rename(avg_lex = "mean(lex)",
           avg_pop ="mean(pop)",
           avg_gdppc = "mean(gdppc)")
 
-
+newdf %>% 
+  head %>% 
+  knitr::kable()
 
 ```
 Here, I have created a new dataframe called "newdf", that has continent summary statistics based on year, average life expectacy, average population and average or mean gdp per capita.
