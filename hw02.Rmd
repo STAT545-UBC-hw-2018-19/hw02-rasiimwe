@@ -1,11 +1,12 @@
 ---
 title: "hw02.Rmd"
-author: "Becky"
+author: "Rebecca Asiimwe"
 date: '2018-09-21'
 output: github_document
 editor_options: 
   chunk_output_type: inline
 ---
+
 # Data Exploration and Visualization using the **dplyr** and **ggplot2** R packages
 
 In this assignment, I will explore the Gapminder dataset. This dataset is distributed as an R package from CRAN. The exploratio of this dataset will involve the application of the dplyr package and its use in effective data wrangling. Among the data manaipulation tasks that dply handles includes: **select ()**, **mutate()**, **filter()**, **rename()**, **summarise()**, **arrange()**, and **group_by()**. These and more will be exhibited in this assignment The output from these functions will then be used as input into the various visualizations that will be done using the ggplot2 package. The application of ggplot2 will involve the use ggplots, grammar of graphics, using features such as: **geoms**, **aesthetics**, **stats**, and **faceting**.  
@@ -483,21 +484,24 @@ p0 <- df %>% filter(cont=="Asia") %>%
   ggplot(aes(gdppc))+ geom_histogram(bins=40)+theme_light()+ ggtitle("GDP per capita of Asia for all years")+theme(plot.title = element_text(hjust = 0.5))+ labs(x = "GDP Per Capita - Asia")
 
 p01 <- df %>% filter(cont=="Africa") %>% 
-  ggplot(aes(gdppc))+ geom_histogram(bins=40)+theme_light() + ggtitle("GDP per capita of Africa for all year")+theme(plot.title = element_text(hjust = 0.5))+ labs(x = "GDP Per Capita - Africa")
+  ggplot(aes(gdppc))+ geom_histogram(bins=40)+theme_light() + ggtitle("GDP per capita of Africa for all years")+theme(plot.title = element_text(hjust = 0.5))+ labs(x = "GDP Per Capita - Africa")
 
 plot_grid(p0, p01, labels = c('Asia', 'Africa'), ncol=1)
 
 ```
+
+In the above output plots, we see that the GDP per capita of Asia is much higher than that of Africa, ~12000 Asia vs ~3000 Africa. 
 
 ### Working with geom_bar
 ```{r}
 df %>% 
   filter(year==2007) %>% 
   ggplot(aes(cont))+ 
-  geom_bar(fill = "gray80", color="black")
+  geom_bar(fill = "gray80", color="black")+
+  labs(x="continent", y="Countries")
 ```
 
-From the above plot, we can see that Africa has the largest number of countries while Oceania has the fewest
+From the above plot, we can see that Africa has the largest number of countries, followed by Asia, while Oceania has the fewest.
 
 ### Working with geom_col
 ```{r}
@@ -514,7 +518,7 @@ d2 %>%
   labs(x="Continent", y="Mean life expectancy")
   
 ```
-
+Here we see that Ocean has the highest mean life expectancy, followed by Europe, while Africa has the lowest.
 
 ### Density plots 
 Comparing gdp per capita and life expectancy of all continets in 2002 
@@ -529,6 +533,7 @@ lex_2002 %>% ggplot(aes(x = lex, fill = cont)) + facet_wrap(~year) + geom_densit
 
 
 ```
+
 
 ### Combining kernel density plots with histograms
 ```{r}
@@ -555,8 +560,11 @@ df %>%
   geom_density_ridges(colour = "gray50", size = 0.6, alpha = 0.5) +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_discrete(expand = c(0,0)) +
-  theme_light() 
+  theme_light()+
+  labs(y="Continent", x="life expectancy")
 ```
+
+Here we see the application ridges in showing us and decomposing density plots. Europe and Oceania, have higher life expectancies compared to other continents. As already seen, Africa has the lowest.
 
 ### Working with line plots
 
@@ -581,6 +589,7 @@ p2<- ggplot(data, aes(x = year, y = lex)) +
 plot_grid(p1, p2, labels = "AUTO", ncol=1)
 ```
 
+For the above plots, I implemented the plot_grid function to help me compare plots side by side. Different types of plots can be explored with this function.
 From the above plots, we can see that the United states has the highest gdp per capita across all years, while Uganda has the lowest. We also see that before 1980 Uganda and China had close to similar gdp per capitas, however after 1980, China rose above Uganda with a steady improvenemt in gdp per capita. Of interest in the life expectancy plot is China again that had a big drop in life expectancy after 1960 but rises above Brazil in ~ 1968. Here we see an almost direct correlation between gdp per capita and life expectancy.
 
 ### Working with Box Plots
@@ -603,6 +612,8 @@ df %>%
   labs(x="GDP per capita", y="population")
 ```
 
+Here we see an increase in GDP per capita with an increase in population. We see an interesting trend with Asia, that has countries with very high populations (outliers) and yet no significant correlationalincrement in GDP per capita. 
+
 ### Working with geom_smooth
 ```{r}
 df %>% 
@@ -613,6 +624,8 @@ df %>%
   labs(x="GDP Per Capita", y="Population")
 ```
 
+Here, I use geom_smooth to help me detect instances of overplotting which may make it hard to see points in the plot.
+
 ### More examples of the usage of geom_line, geom_jitter and geom_point
 In the next code snippet, I introduce my new data frame that I created "newdf"
 ```{r}
@@ -620,7 +633,8 @@ newdf %>%
   ggplot(aes(cont, avg_lex))+
   geom_line()+
   geom_jitter()+
-  geom_point()
+  geom_point()+
+  labs(x="continent", y="average life expectancy")
 
 ```
 
@@ -635,6 +649,8 @@ newdf %>%
 
 ```
 
+Here I show a box plots showing the mean gdp per capita of each contient in order of magnitude, with Africa having the lowest while Oceania the highest. 
+
 ### Including outliers in a box plot
 ```{r}
  df %>% 
@@ -646,6 +662,8 @@ newdf %>%
 
 
 ```
+
+In the box plots above, I introduce the visualization of outliers for each contient and based on the mean gdp per capita.
 
 ### Working with Violin Plots
 ```{r}
@@ -665,9 +683,13 @@ df %>%
  ggplot(aes(reorder(cont, pop), pop)) + 
   scale_y_log10()+
   geom_violin(fill="gray80", color="black")+
-  geom_jitter(alpha=0.2) #show as much of the data as you can
+  geom_jitter(alpha=0.2)+
+  labs(x="Continent", y="population")
+ 
 
 ```
+
+In the plots above, I show the aplication of violin plots in helping us visualize the shape of our data in a more helpful way. The plots also include geom_jitter, to help me see where the population of most countries lie. For example, most of the population of Europes countries lies at ~10000000.
 
 ### Working with Facet Wraps combined with other ggplopt2 features
 ```{r}
@@ -684,6 +706,9 @@ df %>%
  
 ```
 
+Here, I show the application of facets in splitting my dataset based on the continent, gdp per capita and year, and there on present violin plots based on each of the specified variables. We can also implement this for different types of plots. 
+
+
 ### Working with geom_segment
 ```{r}
 df %>% 
@@ -696,6 +721,8 @@ df %>%
  
 
 ```
+
+The plot above is based on geom_sements and geom_point to help me visualize the gdp per capita of each country based on a horizontal inclination. This way, I can also deduce the country in Americas that has the highest gdp per capita(United States) and the one that has the lowest(Haiti)
 
 ### Working with grouped bar charts
 ```{r}
@@ -711,6 +738,7 @@ d4 %>%
   
 ```
 
+Here I show the population of each continet over the different years using grouped bar charts.
 
 ### Working with stacked bar charts, stacked to 100%
 
@@ -727,6 +755,7 @@ d5 %>%
  
 ```
 
+And the final plot I show, presents a visualization of how we can stack plots and stack them to 100%. We can deduce that Asia has the largest population, while Oceania has the smallest!!
 
 
 
