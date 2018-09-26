@@ -429,7 +429,7 @@ p0 <- df %>% filter(cont=="Asia") %>%
 p01 <- df %>% filter(cont=="Africa") %>% 
   ggplot(aes(gdppc))+ geom_histogram(bins=40)+theme_light() + ggtitle("GDP per capita of Africa for all year")+theme(plot.title = element_text(hjust = 0.5))+ labs(x = "GDP Per Capita - Africa")
 
-plot_grid(p0, p01, labels = "AUTO")
+plot_grid(p0, p01, labels = c('Asia', 'Africa'), ncol=1)
 
 ```
 
@@ -511,29 +511,18 @@ To view the progression of the gdp per capita and life expectancy of countries o
 countries <- c("Croatia", "China", "Brazil", "Bolivia", "Canada","Uganda","United States")
 data <- droplevels(subset(df, country %in% countries))
 data$country <- with(data, reorder(country, gdppc, max))
-ggplot(data, aes(x = year, y = gdppc)) +
-  geom_line(aes(color = country)) +
-  scale_colour_manual(values = country_colors) +
-  guides(color = guide_legend(reverse = TRUE))
-
-data$country <- with(data, reorder(country, lex, max))
-ggplot(data, aes(x = year, y = lex)) +
-  geom_line(aes(color = country)) +
-  scale_colour_manual(values = country_colors) +
-  guides(color = guide_legend(reverse = TRUE))
-
 p1 <- ggplot(data, aes(x = year, y = gdppc)) +
   geom_line(aes(color = country)) +
   scale_colour_manual(values = country_colors) +
   guides(color = guide_legend(reverse = TRUE))
 
-p2 <- ggplot(data, aes(x = year, y = lex)) +
+data$country <- with(data, reorder(country, lex, max))
+p2<- ggplot(data, aes(x = year, y = lex)) +
   geom_line(aes(color = country)) +
   scale_colour_manual(values = country_colors) +
   guides(color = guide_legend(reverse = TRUE))
 
-#par(mfrow=c(2,1))
-plot_grid(p1, p2)
+plot_grid(p1, p2, labels = "AUTO", ncol=1)
 ```
 
 From the above plots, we can see that the United states has the highest gdp per capita across all years, while Uganda has the lowest. We also see that before 1980 Uganda and China had close to similar gdp per capitas, however after 1980, China rose above Uganda with a steady improvenemt in gdp per capita. Of interest in the life expectancy plot is China again that had a big drop in life expectancy after 1960 but rises above Brazil in ~ 1968. Here we see an almost direct correlation between gdp per capita and life expectancy.
@@ -558,6 +547,15 @@ df %>%
   labs(x="GDP per capita", y="population")
 ```
 
+### Working with geom_smooth
+```{r}
+df %>% 
+  ggplot(aes(lex, gdppc))+
+  scale_x_log10()+
+  geom_point(alpha=0.2)+
+  geom_smooth()+
+  labs(x="GDP Per Capita", y="Population")
+```
 
 ### More examples of the usage of geom_line, geom_jitter and geom_point
 In the next code snippet, I introduce my new data frame that I created "newdf"
