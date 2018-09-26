@@ -34,7 +34,7 @@ df <- gapminder# Assigning and renaming the dataset to a shorter and more conven
 ### Applying the pipe operator
 This section involves the use of the pipe operator in accomplishing the data inspection task. 
 
-##### 1. What type of object is the gapminder dataset?
+##### What type of object is the gapminder dataset?
 ```{r}
 
 df %>% class # in base R, this would be "class(df)"
@@ -43,7 +43,7 @@ df %>% class # in base R, this would be "class(df)"
 
 In R, datasets are regarded as objects. To work with most objects, it is ideal to know the class (type of object) to be able to work with it effectively and to avoid programming hitches. For example, the way we work with dataframes is different from the way matrixes are handled. From the output of the above snipped, the gapminder dataset is of type tbl_df, inherited from both the tbl and data.frame data types. Data frames such as the gapminder dataset that are converted into tbl objects make it much easier to work with large datasets.
 
-##### 2. Viewing the top (n) rows of the dataset
+##### Viewing the top (n) rows of the dataset
 ```{r}
 
 df %>% head(10) %>% 
@@ -51,7 +51,7 @@ df %>% head(10) %>%
 
 ```
 
-##### 3. Viewing bottom (n) rows of dataframe
+##### Viewing bottom (n) rows of dataframe
 ```{r}
 
 df %>% tail(5)%>% 
@@ -59,7 +59,7 @@ df %>% tail(5)%>%
 
 ```
 
-##### 4. Extracting the summarized view of the dataset
+##### Extracting the summarized view of the dataset
 ```{r}
 
 df %>% summary%>% 
@@ -75,7 +75,7 @@ summary(df$continent=="Africa")`
 These and more examples that validate the results from the summary function above, will be shown below.
  
 
-##### 5. Viewing the structure of the dataset
+##### Viewing the structure of the dataset
 ```{r}
 
 df %>% str
@@ -90,7 +90,7 @@ From output of the above code snippet, we can see and further confirm that the d
 5. **pop** is an **integer** variable denoting population
 6. **gdpPercap** is a **numeric** variable denoting GDP per capita
 
-##### 6. Checking the dimensions of the dataframe (nrows x ncols)
+##### Checking the dimensions of the dataframe (nrows x ncols)
 Apart from using the str() function to view the dimensions of a dataset, we can also use the below:
 ```{r}
 
@@ -100,21 +100,21 @@ df %>% dim
 ```
 The dataframe has 1704 rows and 6 columns (1704 x 6)
 
-##### 7. Alternative call for number of rows
+##### Alternative call for number of rows
 ```{r}
 
 df %>% nrow 
 
 ```
 
-##### 8. Alternative call for number of columns
+##### Alternative call for number of columns
 ```{r}
 
 df %>% ncol
 
 ```
 
-##### 9. Extracting column names
+##### Extracting column names
 ```{r}
 
 df %>% names
@@ -135,7 +135,7 @@ The output of the above code snippet is 0. This implies that we do not have any 
 ## Data Inspection - Part 2: Variable Specific Exploration 
 
 ### Exploring a categorical variable from the data set (continent) 
-##### 1. Which continents exist in the gapminder dataset?
+##### Which continents exist in the gapminder dataset?
 ```{r}
 
 df %>% distinct(continent) %>% arrange(continent)%>% 
@@ -148,12 +148,12 @@ df$continent %>%unique%>%
 
 We have 5 distinct continents in the gapminder dataset: Asia, Europe, Africa, Americas and Oceania
 
-##### 2. How many continents are there?
+##### How many continents are there?
 ```{r}
 df$continent %>% nlevels
 ```
 
-3. How many countries are in each continent?
+##### How many countries are in each continent?
 ```{r}
 df %>% 
   group_by(continent) %>%
@@ -165,7 +165,7 @@ df$continent %>% summary%>%
 
 ```
 
-To see how many countries belong to Europe and how many do not, we can use the following
+##### To see how many countries belong to Europe and how many do not, we can use the following
 ```{r}
 
 summary(df$continent=="Africa") 
@@ -176,20 +176,20 @@ summary(df$continent=="Africa")
 
 In my first assignmeent I explored the gdpPercap variable and I saw that an increase in gdp per capita increased life expectancy. Here I will also probe into the pop (population) variable to see whether it has a bearing on gdp per capita. 
 
-##### 1. What is the highest population in the entire dataset?
+##### What is the highest population in the entire dataset?
 ```{r}
 
 df$pop %>% max
 
 ```
-##### 2. What is the lowest population in the entire dataset?
+##### What is the lowest population in the entire dataset?
 ```{r}
 
 df$pop %>% min
 
 ```
 
-##### 3. To achieve the above output, we can alterantively use the range() function to extract the lowest and highest population values. To do this, I will use the following:
+##### To achieve the above output, we can alterantively use the range() function to extract the lowest and highest population values. To do this, I will use the following:
 
 ```{r}
 
@@ -198,7 +198,7 @@ range(df$pop)
 ```
 As we can sees, 60011 is the lowest population reported in the entire dataset and 1318683096 is the highest. However, I woould like to know more!
 
-##### 3. Which country reports the highest population?
+##### Which country reports the highest population?
 ```{r}
 
 high <- df$pop %>% max
@@ -207,7 +207,7 @@ df[df$pop == high,] # I would like to extract the entire tuple in which the high
 ```
 China, in Asia has the highest recorded population and this was in 2007.
 
-##### 3. Which country reports the lowest population?
+##### Which country reports the lowest population?
 ```{r}
 
 low <- df$pop %>% min
@@ -377,7 +377,7 @@ gp %>%
 ```
 We can now see, the grouped extact from dataframe "df" is now also being defined as a "grouped_df" 
 
-Using group_by() with summarise()
+##### Using group_by() with summarise()
 ```{r}
 
 # Example 1:
@@ -411,7 +411,7 @@ df %>%
 
 We can see that the output from these functions aligns with the summary() function that we saw in previous sections. For example, we can see the number of coutries in each continent. We can also compute the mean values of the life expectancy, population and gdp per capita variables and present them in a summarised way.
 
-Combining filter(), select(), mutate(), group_by() and summarize()
+##### Combining filter(), select(), mutate(), group_by() and summarize()
 ```{r}
 # Example 1:
 df %>%
@@ -468,7 +468,7 @@ This section also presents different kinds of plots enabled by ggplot2 as a visu
 df %>% 
   filter(year == 2007) %>% 
   ggplot(aes(lex)) +
-  geom_histogram(binwidth = 1, fill = "orange", colour = "black", alpha = 0.5) +
+  geom_histogram(binwidth = 1, fill = "orange", colour = "black", alpha = 0.7) +
   scale_y_continuous(breaks = scales::pretty_breaks()) +
   theme_gray() +
   labs(x="Life Expectancy")
