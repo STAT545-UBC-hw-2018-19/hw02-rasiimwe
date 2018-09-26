@@ -78,8 +78,7 @@ These and more examples that validate the results from the summary function abov
 ##### 5. Viewing the structure of the dataset
 ```{r}
 
-df %>% str%>% 
-  knitr::kable()
+df %>% str
 
 ```
 
@@ -125,7 +124,6 @@ df %>% names
 #### Quality Control (QC)
 ```{r}
 
-sum(is.na(df)) 
 df %>% is.na %>% sum
 
 ```
@@ -181,13 +179,13 @@ In my first assignmeent I explored the gdpPercap variable and I saw that an incr
 ##### 1. What is the highest population in the entire dataset?
 ```{r}
 
-df$population %>% max
+df$pop %>% max
 
 ```
 ##### 2. What is the lowest population in the entire dataset?
 ```{r}
 
-df$population %>% min
+df$pop %>% min
 
 ```
 
@@ -195,7 +193,7 @@ df$population %>% min
 
 ```{r}
 
-range(df$population)
+range(df$pop)
 
 ```
 As we can sees, 60011 is the lowest population reported in the entire dataset and 1318683096 is the highest. However, I woould like to know more!
@@ -203,7 +201,7 @@ As we can sees, 60011 is the lowest population reported in the entire dataset an
 ##### 3. Which country reports the highest population?
 ```{r}
 
-high <- df$population %>% max
+high <- df$pop %>% max
 df[df$pop == high,] # I would like to extract the entire tuple in which the highest population was recorded
 
 ```
@@ -212,8 +210,8 @@ China, in Asia has the highest recorded population and this was in 2007.
 ##### 3. Which country reports the lowest population?
 ```{r}
 
-low <- df$population %>% min
-df[df$population == low,]
+low <- df$pop %>% min
+df[df$pop == low,]
 
 ```
 Sao Tome and Principe, in Africa has the lowest population reported for the year 1952.
@@ -252,9 +250,11 @@ Example 1. Filtering the dataset based on single and multiple criteria
 ```{r, message=FALSE}
 
 df %>% filter(cont=="Asia") %>% 
+  head(5) %>% 
   knitr::kable() # extract statistics from rows where the continent is Asia 
 
 df %>% filter(year==1977)%>% 
+  head(5) %>% 
   knitr::kable()# extract statistics from rows where the year is 1977
 
 ```
@@ -262,15 +262,22 @@ df %>% filter(year==1977)%>%
 Example 2. Filtering a dataset based on multiple criteria (to achieve this we can implement logical operators such as: **&**(and), **<**(less than), **<=**(less than or equal to), **>**(greater than), **>=**(greater than or equal to), **==**(equal to), **!=**(not equal to), **|**(or)) e.t.c
 ```{r}
 
-filter(df, cont=="Oceania" & year==2002) # Show only stats for Oceania in 2002
+filter(df, cont=="Oceania" & year==2002)%>% 
+  knitr::kable() # Show only stats for Oceania in 2002
 
-filter(df, gdppc<400 & lex>40 & year==2007 ) # filter for only stats for countries with gdp per capita less than 400 and life expecancy greater than 40 where the year is 2007  
+filter(df, gdppc<400 & lex>40 & year==2007 )%>% 
+  knitr::kable() # filter for only stats for countries with gdp per capita less than 400 and life expecancy greater than 40 where the year is 2007  
 
-filter(df, country=="Angola", year >=1995) # filtering for all rows where the country is Angola and the year less than 1995
+filter(df, country=="Angola", year >=1995)%>% 
+  knitr::kable() # filtering for all rows where the country is Angola and the year less than 1995
 
-filter(df, cont!="Americas", year <= 1995 | year ==2007) # filtering for rows where the continent is not Americas and the year is less than or equal to 1995 or  year is 2007
+filter(df, cont!="Americas", year <= 1995 | year ==2007)%>% 
+  head(5) %>% 
+  knitr::kable() # filtering for rows where the continent is not Americas and the year is less than or equal to 1995 or  year is 2007
 
-df %>% filter(country=="China" | country=="Sao Tome and Principe")#filter for rows where the country is either Chaina or Sao Tome and Principe
+df %>% filter(country=="China" | country=="Sao Tome and Principe")%>% 
+  head(5) %>% 
+  knitr::kable()#filter for rows where the country is either Chaina or Sao Tome and Principe
 
 #Alternative for the above:
 #filter(df, country %in% c("China", "Sao Tome and Principe")) 
@@ -285,13 +292,14 @@ The filter() function is applied when we want to return only certain rows that m
 # Example 1:
 df %>% 
   select(country, year, pop) %>%
-  head(8)%>% 
+  head(5)%>% 
   knitr::kable() # here, I am using the select() function to subset the data by selecting only the country, year and population. I have also piped my output through head to extrac the top 8 rows.
 
 # Example 2:
 df %>%
   filter(country == "Tanzania") %>%
   select(year, pop)%>% 
+  head(5) %>% 
   knitr::kable() # combining filter and select functions to select the year and population for the country Tanzania.
 
 ```
@@ -301,19 +309,22 @@ The arrange function sorts a dataset by columns of interest. This can be done ei
 
 ```{r}
 # Example 1:
-df %>% arrange(pop)%>% 
+df %>% arrange(pop)%>%
+  head(5) %>% 
   knitr::kable()
 
 # Example 2:
 df %>% 
   select(pop, lex) %>% 
   arrange %>% 
+  head(5) %>% 
   knitr::kable()
 
 # Example 3:
 df %>% 
   select(pop, lex) %>% 
   arrange(desc(pop))%>% 
+  head(5) %>% 
   knitr::kable()
 
 
@@ -328,6 +339,7 @@ mutated <- mutate(df, gdp2=gdppc*100) # this creates a new variable called gdp
 mutated %>% head %>% 
   knitr::kable()
 ```
+
 Here we can see that a new variable gdp2 has been added to the mutated dataset computed from the gdp per capita variable
 
 ### The summarise function: summarize()
@@ -381,7 +393,8 @@ df %>%
 # Example 3:
 df %>% 
   group_by(cont,year) %>%  
-  summarise(mean(lex), mean(pop), mean(gdppc))%>% 
+  summarise(mean(lex), mean(pop), mean(gdppc))%>%
+  head(5) %>% 
   knitr::kable()
 # Example 4:
 df %>% filter(year==1992)%>% 
@@ -434,6 +447,7 @@ newdf %>%
   knitr::kable()
 
 ```
+
 Here, I have created a new dataframe called "newdf", that has continent summary statistics based on year, average life expectacy, average population and average or mean gdp per capita.
 
 ## The application of ggplot2 for the visualization of the gapminder dataset
