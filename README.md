@@ -9,9 +9,9 @@ hw02-rasiimwe created by GitHub Classroom
 
 ### Overview of assignment and dataset
 
-My [first assignment](https://github.com/STAT545-UBC-students/hw01-rasiimwe/blob/master/hw01_gapminder.md) on the gapminder dataset comprised of key functions required to explore a dataset before subsequent data analysis. In this assignment, most tasks were mostly inclined to the aplication of base R and lattice. 
+My [first assignment](https://github.com/STAT545-UBC-students/hw01-rasiimwe/blob/master/hw01_gapminder.md) on the gapminder dataset comprised of key functions required to explore a dataset before subsequent data analysis. In the first assignment, data exploration was mostly inclined to the aplication of base R and lattice. 
 
-In this assignment I will heavily focus on the application of **dplyr**, an R package for data manipuation and **ggplot2**, an R package for creating elegant data visualisations using the "grammar of graphics". Both are available as [CRAN packages](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+In this assignment I will heavily focus on the application of **dplyr**, an R package for data manipuation and **ggplot2**, an R package for creating elegant data visualizations using the "grammar of graphics". Both are available as [CRAN packages](https://cran.r-project.org/web/packages/available_packages_by_name.html)
 
 ---
 
